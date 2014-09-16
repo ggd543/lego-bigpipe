@@ -1,0 +1,14 @@
+{
+  "name": "lego-server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "a pagelet building service for lego",
+  "main": "index.js",
+  "author": "Hinc Liu <hincubus@gmail.com>",
+  "dependencies": {
+    "compression": "^1.1.0",
+    "errorhandler": "^1.2.0",
+    "express": "^4.9.0",
+    "log4js": "^0.6.21"
+  }
+}
