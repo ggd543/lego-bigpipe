@@ -13,13 +13,9 @@ module.exports = function (req, res) {
   if (_.type(data) !== 'object')
     return res.send(error('E_PARAM_ERR', '请求参数错误 [data]'));
 
-  var meta = req.param('meta');
-  if (_.type(meta) !== 'object')
-    return res.send(error('E_PARAM_ERR', '请求参数错误 [meta]'));
-
   var result;
   try {
-    result = reactor[mode](data);
+    result = reactor[mode].unit(data);
   } catch (e) {
     return res.send(error('E_REACT_ERR', e.message));
   }
