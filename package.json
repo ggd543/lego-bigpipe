@@ -1,5 +1,5 @@
 {
-  "name": "lego-server",
+  "name": "lego-reactor",
   "private": true,
   "version": "0.1.0",
   "description": "a pagelet building service for lego",
