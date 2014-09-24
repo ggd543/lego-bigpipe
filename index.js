@@ -1,26 +1,138 @@
 'use strict';
 
-var express = require('express');
-var compress = require('compression');
-var bodyParser = require('body-parser');
-var app = module.exports = express();
+var ejs = require('ejs');
+var metaTpl = '  <meta name="<%= name %>" content="<%= content %>">\n';
+var styleLinkTpl = '  <link rel="stylesheet" type="text/css" href="<%= url %>">\n';
+var styleTpl = '  <style><%- content %></style>\n';
+var scriptLinkTpl = '  <script src="<%= url %>"></script>\n';
+var scriptTpl = '  <script><%- content %></script>\n';
 
-process.on('uncaughtException', function (err) {
-  (app.get('logger') || console).error('Uncaught exception:\n', err.stack);
-});
+exports.unit = function (data) {
+  var pagelet = {};
+  pagelet.id = data.code;
+  pagelet.js = data.js || [];
 
-app.set('port', process.env.PORT || 5000);
-app.set('logger', require('./lib/logger'));
-app.enable('trust proxy');
+  var bigpipe = '<script>lego.onPageletArrive(' + JSON.stringify(pagelet) + ')</script>';
 
-app.use(compress());
-app.use(bodyParser.json());
-app.use(require('./middleware/router')());
-app.use(require('./middleware/error')());
+  if (data.source && data.data) {
+    pagelet.html = ejs.render(data.source, {locals: data.data});
+  }
 
-if (require.main === module) {
-  app.listen(app.get('port'), function () {
-    console.log('[%s] Express server listening on port %d',
-      app.get('env').toUpperCase(), app.get('port'));
+  if (pagelet.html) bigpipe = pagelet.html + bigpipe;
+
+  pagelet.css = data.css || [];
+  var quickling = 'lego.onPageletArrive(' + JSON.stringify(pagelet) + ');';
+
+  return {
+    code: data.code,
+    bigpipe: bigpipe,
+    quickling: quickling
+  };
+};
+
+exports.view = function (data, config) {
+  var pre = '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n';
+  if (data.head) {
+    // meta
+    each(data.head.metas, function (meta) {
+      pre += ejs.render(metaTpl, {locals: meta});
+    });
+
+    // title
+    if (data.head.title) pre += '  <title>' + data.head.title + '</title>\n';
+
+    // link[rel="stylesheet"], style
+    each(data.head.styles, function (style) {
+      pre += ejs.render(style.url ? styleLinkTpl : styleTpl,
+        {locals: style});
+    });
+
+    // script[src], script
+    each(data.head.scripts, function (script) {
+      pre += ejs.render(script.url ? scriptLinkTpl : scriptTpl,
+        {locals: script});
+    });
+
+    // combo units' css
+    if (data.body) {
+      var comboIds = [];
+      each(data.body.units, function (unit) {
+        if (unit.css) comboIds = comboIds.concat(unit.css);
+      });
+      if (comboIds.length) {
+        pre += ejs.render(styleLinkTpl, {locals: {
+          url: genUrl(comboIds, '.css.js', config)
+        }});
+      }
+    }
+  }
+  pre += '  </head>\n<body>\n';
+
+  var post = '';
+  if (data.body) {
+    // link[rel="stylesheet"], style
+    each(data.body.styles, function (style) {
+      post += ejs.render(style.url ? styleLinkTpl : styleTpl,
+        {locals: style});
+    });
+
+    // script[src], script
+    each(data.body.scripts, function (script) {
+      post += ejs.render(script.url ? scriptLinkTpl : scriptTpl,
+        {locals: script});
+    });
+  }
+  post += '</body>\n</html>';
+
+  // replace __LEGO_CONFIG__ placeholder with config
+  var configJSON = JSON.stringify(config);
+  pre = pre.replace('__LEGO_CONFIG__', configJSON);
+  post = post.replace('__LEGO_CONFIG__', configJSON);
+
+  return {
+    code: data.code,
+    pre: pre,
+    post: post
+  };
+};
+
+function type(obj) {
+  var t;
+  if (obj == null) {
+    t = String(obj);
+  } else {
+    t = Object.prototype.toString.call(obj).toLowerCase();
+    t = t.substring(8, t.length - 1);
+  }
+  return t;
+}
+
+function each(obj, iterator, context) {
+  if (typeof obj !== 'object') return;
+
+  var i, l, t = type(obj);
+  context = context || obj;
+  if (t === 'array' || t === 'arguments' || t === 'nodelist') {
+    for (i = 0, l = obj.length; i < l; i++) {
+      if (iterator.call(context, obj[i], i, obj) === false) return;
+    }
+  } else {
+    for (i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        if (iterator.call(context, obj[i], i, obj) === false) return;
+      }
+    }
+  }
+}
+
+function genUrl(ids, ext, config) {
+  ids = ids.slice();
+  ext = ext || '';
+  each(ids, function (id, i) {
+    ids[i] = id + ext;
   });
+
+  var url = ids.length > 1 && config.comboPattern || config.urlPattern;
+  if (url) url = url.replace('%s', ids.join(';'));
+  return url;
 }

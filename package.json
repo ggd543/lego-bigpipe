@@ -1,17 +1,19 @@
 {
-  "name": "lego-reactor",
-  "private": true,
+  "name": "lego-bigpipe",
   "version": "0.1.0",
-  "description": "a pagelet building service for lego",
-  "main": "index.js",
-  "author": "Hinc Liu <hincubus@gmail.com>",
+  "description": "a bigpipe builder for scrat-lego",
+  "license": "MIT",
+  "main": ".",
+  "author": {
+    "name": "Hinc Liu",
+    "email": "hincubus@gmail.com",
+    "url": "http://hinc.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hinc/lego-bigpipe"
+  },
   "dependencies": {
-    "body-parser": "^1.8.2",
-    "compression": "^1.1.0",
-    "ejs": "^1.0.0",
-    "errorhandler": "^1.2.0",
-    "express": "^4.9.0",
-    "log4js": "^0.6.21",
-    "mkdirp": "^0.5.0"
+    "ejs": "^1.0.0"
   }
 }
