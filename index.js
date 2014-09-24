@@ -75,12 +75,12 @@ exports.view = function (data, config) {
     comboIds = Object.keys(comboIds);
     if (comboIds.length) {
       if (config.combo) {
-        pre += ejs.render(styleLinkTpl, {locals: {
+        pre += ejs.render(scriptLinkTpl, {locals: {
           url: genUrl(comboIds, '.css.js', config)
         }});
       } else {
         each(comboIds, function (id) {
-          pre += ejs.render(styleLinkTpl, {locals: {
+          pre += ejs.render(scriptLinkTpl, {locals: {
             url: genUrl(id, '.css.js', config)
           }});
         });
