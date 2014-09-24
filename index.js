@@ -15,7 +15,7 @@ exports.unit = function (data) {
 
   if (data.js) {
     pagelet.js = data.js;
-    bigpipe = '<script>lego.onPageletArrive(' + JSON.stringify(pagelet) + ')</script>';
+    bigpipe = '<script>lego.onPageletArrive(' + JSON.stringify(pagelet) + ');</script>';
   }
 
   if (data.source && data.data) {

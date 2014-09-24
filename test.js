@@ -13,7 +13,7 @@ describe('lego.unit', function () {
     };
     var r = lego.unit(u);
     r.should.have.property('code', u.code);
-    r.should.have.property('bigpipe', '<h1>unit</h1><script>lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]})</script>');
+    r.should.have.property('bigpipe', '<h1>unit</h1><script>lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});</script>');
     r.should.have.property('quickling', 'lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"],"html":"<h1>unit</h1>","css":["c/c1/c1","c/c2/c2"]});');
   });
 
@@ -35,7 +35,7 @@ describe('lego.unit', function () {
     };
     var r = lego.unit(u);
     r.should.have.property('code', u.code);
-    r.should.have.property('bigpipe', '<script>lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]})</script>');
+    r.should.have.property('bigpipe', '<script>lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});</script>');
     r.should.have.property('quickling', 'lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});');
   });
 
