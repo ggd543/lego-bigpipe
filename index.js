@@ -39,6 +39,8 @@ exports.unit = function (data) {
 };
 
 exports.view = function (data, config) {
+  if (!data.code) data.code = uuid();
+
   var pre = '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n';
   if (data.head) {
     // meta
@@ -60,28 +62,32 @@ exports.view = function (data, config) {
       pre += ejs.render(script.url ? scriptLinkTpl : scriptTpl,
         {locals: script});
     });
+  }
 
-    // units' css
-    if (data.body) {
-      var comboIds = [];
-      each(data.body.units, function (unit) {
-        if (unit.css) comboIds = comboIds.concat(unit.css);
+  // put units' css in head
+  if (data.body) {
+    var comboIds = {};
+    each(data.body.units, function (unit) {
+      each(unit.css, function (c) {
+        comboIds[c] = 1;
       });
-      if (comboIds.length) {
-        if (config.combo) {
+    });
+    comboIds = Object.keys(comboIds);
+    if (comboIds.length) {
+      if (config.combo) {
+        pre += ejs.render(styleLinkTpl, {locals: {
+          url: genUrl(comboIds, '.css.js', config)
+        }});
+      } else {
+        each(comboIds, function (id) {
           pre += ejs.render(styleLinkTpl, {locals: {
-            url: genUrl(comboIds, '.css.js', config)
+            url: genUrl(id, '.css.js', config)
           }});
-        } else {
-          each(comboIds, function (id) {
-            pre += ejs.render(styleLinkTpl, {locals: {
-              url: genUrl(id, '.css.js', config)
-            }});
-          });
-        }
+        });
       }
     }
   }
+
   pre += '  </head>\n<body>\n';
 
   var post = '';
@@ -152,4 +158,12 @@ function genUrl(ids, ext, config) {
   var url = ids.length > 1 && config.comboPattern || config.urlPattern;
   if (url) url = url.replace('%s', ids.join(';'));
   return url;
+}
+
+// from jqMobi
+function uuid() {
+    function s4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }

@@ -61,10 +61,126 @@ describe('lego.unit', function () {
   });
 });
 
-describe('lego.view with combo=false', function () {
+describe('lego.view', function () {
+  it('should build head.meta properly', function () {
+    var v = lego.view({
+      code: 'view',
+      head: {
+        metas: [{
+          name: 'HandheldFriendly',
+          content: true
+        }, {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0'
+        }]
+      }
+    });
+    v.should.have.property('pre', '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <meta name="HandheldFriendly" content="true">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">\n  </head>\n<body>\n');
+  });
 
-});
+  it('should build head.title properly', function () {
+    var v = lego.view({
+      code: 'view',
+      head: {
+        title: 'Hello'
+      }
+    });
+    v.should.have.property('pre', '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <title>Hello</title>\n  </head>\n<body>\n');
+  });
 
-describe('lego.view with combo=true', function () {
+  it('should build head.styles properly', function () {
+    var v = lego.view({
+      code: 'view',
+      head: {
+        styles: [{
+          url: 'a.css'
+        }, {
+          content: 'html { display: none; }'
+        }]
+      }
+    });
+    v.should.have.property('pre', '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <link rel="stylesheet" type="text/css" href="a.css">\n  <style>html { display: none; }</style>\n  </head>\n<body>\n');
+  });
 
+  it('should build head.scripts properly', function () {
+    var v = lego.view({
+      code: 'view',
+      head: {
+        scripts: [{
+          url: 'a.js'
+        }, {
+          content: 'console.log(\'Hello\');'
+        }]
+      }
+    });
+    v.should.have.property('pre', '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="a.js"></script>\n  <script>console.log(\'Hello\');</script>\n  </head>\n<body>\n');
+  });
+
+  it('should build body.styles properly', function () {
+    var v = lego.view({
+      code: 'view',
+      body: {
+        styles: [{
+          url: 'a.css'
+        }, {
+          content: 'html { display: none; }'
+        }]
+      }
+    });
+    v.should.have.property('post', '  <link rel="stylesheet" type="text/css" href="a.css">\n  <style>html { display: none; }</style>\n</body>\n</html>');
+  });
+
+  it('should build body.scripts properly', function () {
+    var v = lego.view({
+      code: 'view',
+      body: {
+        scripts: [{
+          url: 'a.js'
+        }, {
+          content: 'console.log(\'Hello\');'
+        }]
+      }
+    });
+    v.should.have.property('post', '  <script src="a.js"></script>\n  <script>console.log(\'Hello\');</script>\n</body>\n</html>');
+  });
+
+  it('should put units\' css in head properly when combo=false', function () {
+    var v = lego.view({
+      code: 'view',
+      body: {
+        units: [{
+          code: 'unit1',
+          css: ['u/u1/u11', 'u/u1/u12']
+        }, {
+          code: 'unit2',
+          css: ['u/u2/u21', 'u/u2/u21', 'u/u1/u11']
+        }]
+      }
+    }, {
+      combo: false,
+      urlPattern: '/%s',
+      comboPattern: '/c/%s'
+    });
+    v.should.have.property('pre', '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <link rel="stylesheet" type="text/css" href="/u/u1/u11.css.js">\n  <link rel="stylesheet" type="text/css" href="/u/u1/u12.css.js">\n  <link rel="stylesheet" type="text/css" href="/u/u2/u21.css.js">\n  </head>\n<body>\n');
+  });
+
+  it('should put units\' css in head properly when combo=true', function () {
+    var v = lego.view({
+      code: 'view',
+      body: {
+        units: [{
+          code: 'unit1',
+          css: ['u/u1/u11', 'u/u1/u12']
+        }, {
+          code: 'unit2',
+          css: ['u/u2/u21', 'u/u2/u21', 'u/u1/u11']
+        }]
+      }
+    }, {
+      combo: true,
+      urlPattern: '/%s',
+      comboPattern: '/c/%s'
+    });
+    v.should.have.property('pre', '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <link rel="stylesheet" type="text/css" href="/c/u/u1/u11.css.js;u/u1/u12.css.js;u/u2/u21.css.js">\n  </head>\n<body>\n');
+  });
 });
