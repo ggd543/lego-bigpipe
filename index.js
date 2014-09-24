@@ -9,19 +9,27 @@ var scriptTpl = '  <script><%- content %></script>\n';
 
 exports.unit = function (data) {
   var pagelet = {};
+  var bigpipe = '';
+  var quickling = '';
   pagelet.id = data.code;
-  pagelet.js = data.js || [];
 
-  var bigpipe = '<script>lego.onPageletArrive(' + JSON.stringify(pagelet) + ')</script>';
+  if (data.js) {
+    pagelet.js = data.js;
+    bigpipe = '<script>lego.onPageletArrive(' + JSON.stringify(pagelet) + ')</script>';
+  }
 
   if (data.source && data.data) {
     pagelet.html = ejs.render(data.source, {locals: data.data});
+  } else if (data.source) {
+    pagelet.html = data.source;
   }
 
   if (pagelet.html) bigpipe = pagelet.html + bigpipe;
 
-  pagelet.css = data.css || [];
-  var quickling = 'lego.onPageletArrive(' + JSON.stringify(pagelet) + ');';
+  if (data.css) pagelet.css = data.css;
+  if (pagelet.html || pagelet.js || pagelet.css) {
+    quickling = 'lego.onPageletArrive(' + JSON.stringify(pagelet) + ');';
+  }
 
   return {
     code: data.code,
@@ -53,16 +61,24 @@ exports.view = function (data, config) {
         {locals: script});
     });
 
-    // combo units' css
+    // units' css
     if (data.body) {
       var comboIds = [];
       each(data.body.units, function (unit) {
         if (unit.css) comboIds = comboIds.concat(unit.css);
       });
       if (comboIds.length) {
-        pre += ejs.render(styleLinkTpl, {locals: {
-          url: genUrl(comboIds, '.css.js', config)
-        }});
+        if (config.combo) {
+          pre += ejs.render(styleLinkTpl, {locals: {
+            url: genUrl(comboIds, '.css.js', config)
+          }});
+        } else {
+          each(comboIds, function (id) {
+            pre += ejs.render(styleLinkTpl, {locals: {
+              url: genUrl(id, '.css.js', config)
+            }});
+          });
+        }
       }
     }
   }
@@ -126,7 +142,8 @@ function each(obj, iterator, context) {
 }
 
 function genUrl(ids, ext, config) {
-  ids = ids.slice();
+  if (type(ids) === 'string') ids = [ids];
+  else ids = ids.slice();
   ext = ext || '';
   each(ids, function (id, i) {
     ids[i] = id + ext;

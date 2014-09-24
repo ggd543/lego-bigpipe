@@ -4,6 +4,9 @@
   "description": "a bigpipe builder for scrat-lego",
   "license": "MIT",
   "main": ".",
+  "scripts": {
+    "test": "mocha"
+  },
   "author": {
     "name": "Hinc Liu",
     "email": "hincubus@gmail.com",
@@ -15,5 +18,9 @@
   },
   "dependencies": {
     "ejs": "^1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^1.21.4",
+    "should": "^4.0.4"
   }
 }
