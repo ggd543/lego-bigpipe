@@ -31,6 +31,9 @@ exports.unit = function (data) {
     quickling = 'lego.onPageletArrive(' + JSON.stringify(pagelet) + ');';
   }
 
+  if (bigpipe) bigpipe += '\n';
+  if (quickling) quickling += '\n';
+
   return {
     code: data.code,
     bigpipe: bigpipe,
