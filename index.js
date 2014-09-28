@@ -1,11 +1,22 @@
 'use strict';
 
 var ejs = require('ejs');
-var metaTpl = '  <meta name="<%= name %>" content="<%= content %>">\n';
-var styleLinkTpl = '  <link rel="stylesheet" type="text/css" href="<%= url %>">\n';
-var styleTpl = '  <style><%- content %></style>\n';
-var scriptLinkTpl = '  <script src="<%= url %>"></script>\n';
-var scriptTpl = '  <script><%- content %></script>\n';
+var tpl = {
+  meta: '  <meta name="<%= name %>" content="<%= content %>">\n',
+  styleLink: '  <link rel="stylesheet" type="text/css" href="<%= url %>">\n',
+  style: '  <style><%- content %></style>\n',
+  scriptLink: '  <script src="<%= url %>"></script>\n',
+  script: '  <script><%- content %></script>\n'
+};
+
+// pre-compile and cache templates
+var tplCache = {};
+each(tpl, function (t, name) {
+  tpl.__defineGetter__(name, function () {
+    return tplCache[name] ? tplCache[name] :
+      (tplCache[name] = ejs.compile(t, {filename: name}));
+  });
+});
 
 exports.unit = function (data) {
   var pagelet = {};
@@ -48,7 +59,7 @@ exports.view = function (data, config) {
   if (data.head) {
     // meta
     each(data.head.metas, function (meta) {
-      pre += ejs.render(metaTpl, {locals: meta});
+      pre += tpl.meta(meta);
     });
 
     // title
@@ -56,14 +67,12 @@ exports.view = function (data, config) {
 
     // link[rel="stylesheet"], style
     each(data.head.styles, function (style) {
-      pre += ejs.render(style.url ? styleLinkTpl : styleTpl,
-        {locals: style});
+      pre += tpl[style.url ? 'styleLink' : 'style'](style);
     });
 
     // script[src], script
     each(data.head.scripts, function (script) {
-      pre += ejs.render(script.url ? scriptLinkTpl : scriptTpl,
-        {locals: script});
+      pre += tpl[script.url ? 'scriptLink' : 'script'](script);
     });
   }
 
@@ -78,14 +87,14 @@ exports.view = function (data, config) {
     comboIds = Object.keys(comboIds);
     if (comboIds.length) {
       if (config.combo) {
-        pre += ejs.render(scriptLinkTpl, {locals: {
+        pre += tpl.scriptLink({
           url: genUrl(comboIds, '.css.js', config)
-        }});
+        });
       } else {
         each(comboIds, function (id) {
-          pre += ejs.render(scriptLinkTpl, {locals: {
+          pre += tpl.scriptLink({
             url: genUrl(id, '.css.js', config)
-          }});
+          });
         });
       }
     }
@@ -97,14 +106,12 @@ exports.view = function (data, config) {
   if (data.body) {
     // link[rel="stylesheet"], style
     each(data.body.styles, function (style) {
-      post += ejs.render(style.url ? styleLinkTpl : styleTpl,
-        {locals: style});
+      post += tpl[style.url ? 'styleLink' : 'style'](style);
     });
 
     // script[src], script
     each(data.body.scripts, function (script) {
-      post += ejs.render(script.url ? scriptLinkTpl : scriptTpl,
-        {locals: script});
+      post += tpl[script.url ? 'scriptLink' : 'script'](script);
     });
   }
   post += '</body>\n</html>';
