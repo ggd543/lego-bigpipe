@@ -1,5 +1,6 @@
 'use strict';
 
+var vm = require('vm');
 var ejs = require('ejs');
 var tpl = {
   meta: '  <meta name="<%= name %>" content="<%= content %>">\n',
@@ -30,7 +31,10 @@ exports.unit = function (data) {
   }
 
   if (data.source && data.data) {
-    pagelet.html = ejs.render(data.source, {locals: data.data});
+    var sandbox = {module: {}};
+    var code = 'var exports=module.exports={};' + data.data;
+    vm.runInNewContext(code, sandbox);
+    pagelet.html = ejs.render(data.source, {locals: sandbox.module.exports});
   } else if (data.source) {
     pagelet.html = data.source;
   }
