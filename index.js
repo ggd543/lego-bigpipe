@@ -81,7 +81,7 @@ exports.view = function (data, config) {
   }
 
   // put units' css in head
-  if (data.body) {
+  if (data.body && data.mode !== 'inline') {
     var comboIds = {};
     each(data.body.units, function (unit) {
       each(unit.css, function (c) {
