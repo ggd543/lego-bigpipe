@@ -32,7 +32,7 @@ exports.unit = function (data) {
   if (data.source && data.data) {
     var module = {exports: {}};
     /*jshint evil: true */
-    (new Function('module', data.data))(module);
+    (new Function('module', 'var exports=module.exports;' + data.data)).call(module, module);
     pagelet.html = ejs.render(data.source, {locals: module.exports});
   } else if (data.source) {
     pagelet.html = data.source;
