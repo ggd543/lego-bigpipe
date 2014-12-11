@@ -58,7 +58,7 @@ exports.unit = function (data) {
 exports.view = function (data, config) {
   if (!data.code) data.code = uuid();
 
-  var pre = '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n';
+  var pre = '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n';
   if (data.head) {
     // meta
     each(data.head.metas, function (meta) {
