@@ -57,6 +57,7 @@ exports.unit = function (data) {
 
 exports.view = function (data, config) {
   if (!data.code) data.code = uuid();
+  config = config || {urlPattern: '%s'};
 
   var pre = '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n';
   if (data.head) {
@@ -79,27 +80,32 @@ exports.view = function (data, config) {
     });
   }
 
-  // put units' css in head
-  if (data.body && data.mode !== 'inline') {
-    var comboIds = {};
+  if (data.body) {
+    var ids = {};
     each(data.body.units, function (unit) {
-      each(unit.css, function (c) {
-        comboIds[c] = 1;
-      });
+      each(unit.css, function (m) {ids[m + '.css'] = 1;});
+      if (data.mode === 'inline') each(unit.js, function (m) {ids[m + '.js'] = 1;});
     });
-    comboIds = Object.keys(comboIds);
-    if (comboIds.length) {
-      if (config.combo) {
+    ids = Object.keys(ids);
+    // inline mode: put all mods' content in head
+    if (data.mode === 'inline') {
+      each(ids, function (id) {
+        pre += tpl.script({
+          content: data.mods[id]
+        });
+      });
+    // combo mode: put all mods' css combo in head
+    } else if (config.combo && ids.length) {
+      pre += tpl.scriptLink({
+        url: genUrl(ids, '.js', config)
+      });
+    // put all mods' css in head
+    } else {
+      each(ids, function (id) {
         pre += tpl.scriptLink({
-          url: genUrl(comboIds, '.css.js', config)
+          url: genUrl(id, '.js', config)
         });
-      } else {
-        each(comboIds, function (id) {
-          pre += tpl.scriptLink({
-            url: genUrl(id, '.css.js', config)
-          });
-        });
-      }
+      });
     }
   }
 
