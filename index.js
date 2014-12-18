@@ -87,19 +87,25 @@ exports.view = function (data, config) {
       if (data.mode === 'inline') each(unit.js, function (m) {ids[m + '.js'] = 1;});
     });
     ids = Object.keys(ids);
-    // inline mode: put all mods' content in head
+
+    // inline mode: put mods' content in head
     if (data.mode === 'inline') {
-      each(ids, function (id) {
-        pre += tpl.script({
-          content: data.mods[id]
-        });
-      });
-    // combo mode: put all mods' css combo in head
-    } else if (config.combo && ids.length) {
+      var mods = data.mods || {};
+      for (var i = 0; i < ids.length; i++) {
+        var id = ids[i];
+        if (mods[id]) {
+          pre += tpl.script({content: mods[id]});
+          ids.splice(i--, 1);
+        }
+      }
+    }
+
+    // combo mode: put mods' url of css combo in head
+    if (config.combo && ids.length) {
       pre += tpl.scriptLink({
         url: genUrl(ids, '.js', config)
       });
-    // put all mods' css in head
+    // put mods' url of css in head
     } else {
       each(ids, function (id) {
         pre += tpl.scriptLink({
