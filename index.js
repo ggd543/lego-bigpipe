@@ -91,15 +91,13 @@ exports.view = function (data, config) {
     // inline mode: put mods' content in head
     if (data.mode === 'inline') {
       var mods = data.mods || {};
-      var contents = [];
       for (var i = 0; i < ids.length; i++) {
         var id = ids[i];
         if (mods[id]) {
-          contents.push(mods[id]);
+          pre += tpl.script({content: mods[id]});
           ids.splice(i--, 1);
         }
       }
-      if (contents.length) pre += tpl.script({content: contents.join('\n    ')});
     }
 
     // combo mode: put mods' url of css combo in head
