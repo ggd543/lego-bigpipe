@@ -75,7 +75,7 @@ describe('lego.view', function () {
         }]
       }
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <meta name="HandheldFriendly" content="true">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <meta name="HandheldFriendly" content="true">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">\n</head>\n<body>\n');
   });
 
   it('should build head.title properly', function () {
@@ -85,7 +85,7 @@ describe('lego.view', function () {
         title: 'Hello'
       }
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <title>Hello</title>\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <title>Hello</title>\n</head>\n<body>\n');
   });
 
   it('should build head.styles properly', function () {
@@ -99,7 +99,7 @@ describe('lego.view', function () {
         }]
       }
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <link rel="stylesheet" type="text/css" href="a.css">\n  <style>html { display: none; }</style>\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <link rel="stylesheet" href="a.css">\n  <style>html { display: none; }</style>\n</head>\n<body>\n');
   });
 
   it('should build head.scripts properly', function () {
@@ -113,7 +113,7 @@ describe('lego.view', function () {
         }]
       }
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="a.js"></script>\n  <script>console.log(\'Hello\');</script>\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="a.js"></script>\n  <script>console.log(\'Hello\');</script>\n</head>\n<body>\n');
   });
 
   it('should build body.styles properly', function () {
@@ -127,7 +127,7 @@ describe('lego.view', function () {
         }]
       }
     });
-    v.should.have.property('post', '  <link rel="stylesheet" type="text/css" href="a.css">\n  <style>html { display: none; }</style>\n</body>\n</html>');
+    v.should.have.property('post', '  <link rel="stylesheet" href="a.css">\n  <style>html { display: none; }</style>\n</body>\n</html>');
   });
 
   it('should build body.scripts properly', function () {
@@ -161,7 +161,7 @@ describe('lego.view', function () {
       urlPattern: '/%s',
       comboPattern: '/c/%s'
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="/u/u1/u11.css.js"></script>\n  <script src="/u/u1/u12.css.js"></script>\n  <script src="/u/u2/u21.css.js"></script>\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="/u/u1/u11.css.js"></script>\n  <script src="/u/u1/u12.css.js"></script>\n  <script src="/u/u2/u21.css.js"></script>\n</head>\n<body>\n');
   });
 
   it('should put units\' css in head properly when combo=true', function () {
@@ -181,7 +181,7 @@ describe('lego.view', function () {
       urlPattern: '/%s',
       comboPattern: '/c/%s'
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="/c/u/u1/u11.css.js;u/u1/u12.css.js;u/u2/u21.css.js"></script>\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script src="/c/u/u1/u11.css.js;u/u1/u12.css.js;u/u2/u21.css.js"></script>\n</head>\n<body>\n');
   });
 
   it('should inline all mods\' css and js in head properly when mode="inline"', function () {
@@ -200,16 +200,16 @@ describe('lego.view', function () {
         }]
       },
       mods: {
-        'u/u1/u11.css': 'lego.defineCSS("u/u1/u11.css.js", "html { display: none; }");',
-        'u/u1/u12.css': 'lego.defineCSS("u/u1/u12.css.js", "html { display: block; }");',
+        'u/u1/u11.css.js': 'lego.defineCSS("u/u1/u11.css.js", "html { display: none; }");',
+        'u/u1/u12.css.js': 'lego.defineCSS("u/u1/u12.css.js", "html { display: block; }");',
         'u/u1/u11.js': 'lego.define("u/u1/u11.js", "console.log(\"Hello\");");',
-        'u/u2/u21.css': 'lego.defineCSS("u/u2/u21.css.js", "body { display: none; }");'
+        'u/u2/u21.css.js': 'lego.defineCSS("u/u2/u21.css.js", "body { display: none; }");'
       }
     }, {
       combo: true,
       urlPattern: '/%s',
       comboPattern: '/c/%s'
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script>lego.defineCSS("u/u1/u11.css.js", "html { display: none; }");</script>\n  <script>lego.defineCSS("u/u1/u12.css.js", "html { display: block; }");</script>\n  <script>lego.define("u/u1/u11.js", "console.log("Hello");");</script>\n  <script>lego.defineCSS("u/u2/u21.css.js", "body { display: none; }");</script>\n  </head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script>lego.defineCSS("u/u1/u11.css.js", "html { display: none; }");\n    lego.defineCSS("u/u1/u12.css.js", "html { display: block; }");\n    lego.define("u/u1/u11.js", "console.log("Hello");");\n    lego.defineCSS("u/u2/u21.css.js", "body { display: none; }");</script>\n</head>\n<body>\n');
   });
 });

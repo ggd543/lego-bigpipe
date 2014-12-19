@@ -3,7 +3,7 @@
 var ejs = require('ejs');
 var tpl = {
   meta: '  <meta name="<%= name %>" content="<%= content %>">\n',
-  styleLink: '  <link rel="stylesheet" type="text/css" href="<%= url %>">\n',
+  styleLink: '  <link rel="stylesheet" href="<%= url %>">\n',
   style: '  <style><%- content %></style>\n',
   scriptLink: '  <script src="<%= url %>"></script>\n',
   script: '  <script><%- content %></script>\n'
@@ -83,7 +83,7 @@ exports.view = function (data, config) {
   if (data.body) {
     var ids = {};
     each(data.body.units, function (unit) {
-      each(unit.css, function (m) {ids[m + '.css'] = 1;});
+      each(unit.css, function (m) {ids[m + '.css.js'] = 1;});
       if (data.mode === 'inline') each(unit.js, function (m) {ids[m + '.js'] = 1;});
     });
     ids = Object.keys(ids);
@@ -91,31 +91,33 @@ exports.view = function (data, config) {
     // inline mode: put mods' content in head
     if (data.mode === 'inline') {
       var mods = data.mods || {};
+      var contents = [];
       for (var i = 0; i < ids.length; i++) {
         var id = ids[i];
         if (mods[id]) {
-          pre += tpl.script({content: mods[id]});
+          contents.push(mods[id]);
           ids.splice(i--, 1);
         }
       }
+      if (contents.length) pre += tpl.script({content: contents.join('\n    ')});
     }
 
     // combo mode: put mods' url of css combo in head
     if (config.combo && ids.length) {
       pre += tpl.scriptLink({
-        url: genUrl(ids, '.js', config)
+        url: genUrl(ids, config)
       });
     // put mods' url of css in head
     } else {
       each(ids, function (id) {
         pre += tpl.scriptLink({
-          url: genUrl(id, '.js', config)
+          url: genUrl(id, config)
         });
       });
     }
   }
 
-  pre += '  </head>\n<body>\n';
+  pre += '</head>\n<body>\n';
 
   var post = '';
   if (data.body) {
@@ -172,13 +174,9 @@ function each(obj, iterator, context) {
   }
 }
 
-function genUrl(ids, ext, config) {
+function genUrl(ids, config) {
   if (type(ids) === 'string') ids = [ids];
   else ids = ids.slice();
-  ext = ext || '';
-  each(ids, function (id, i) {
-    ids[i] = id + ext;
-  });
 
   var url = ids.length > 1 && config.comboPattern || config.urlPattern;
   if (url) url = url.replace('%s', ids.join(';'));
