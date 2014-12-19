@@ -81,33 +81,37 @@ exports.view = function (data, config) {
   }
 
   if (data.body) {
-    var ids = {};
+    var ids = {css: {}, js: {}};
     each(data.body.units, function (unit) {
-      each(unit.css, function (m) {ids[m + '.css.js'] = 1;});
-      if (data.mode === 'inline') each(unit.js, function (m) {ids[m + '.js'] = 1;});
+      each(unit.css, function (m) {ids.css[m + '.css.js'] = 1;});
+      if (data.mode === 'inline') each(unit.js, function (m) {ids.js[m + '.js'] = 1;});
     });
-    ids = Object.keys(ids);
+    ids.css = Object.keys(ids.css);
+    ids.js = Object.keys(ids.js);
 
     // inline mode: put mods' content in head
     if (data.mode === 'inline') {
       var mods = data.mods || {};
-      for (var i = 0; i < ids.length; i++) {
-        var id = ids[i];
+      for (var i = 0; i < ids.css.length; i++) {
+        var id = ids.css[i];
         if (mods[id]) {
           pre += tpl.script({content: mods[id]});
-          ids.splice(i--, 1);
+          ids.css.splice(i--, 1);
         }
       }
+      each(ids.js, function (id) {
+        pre += tpl.script({content: mods[id]});
+      });
     }
 
     // combo mode: put mods' url of css combo in head
-    if (config.combo && ids.length) {
-      pre += tpl.scriptLink({
-        url: genUrl(ids, config)
-      });
+    if (config.combo && ids.css.length) {
+      pre += genUrl(ids.css, config).reduce(function (scripts, url) {
+        return scripts += tpl.scriptLink({url: url});
+      }, '');
     // put mods' url of css in head
     } else {
-      each(ids, function (id) {
+      each(ids.css, function (id) {
         pre += tpl.scriptLink({
           url: genUrl(id, config)
         });
@@ -173,12 +177,33 @@ function each(obj, iterator, context) {
 }
 
 function genUrl(ids, config) {
-  if (type(ids) === 'string') ids = [ids];
+  config = config || {};
+  var urlPattern = config.urlPattern || '%s';
+  if (type(ids) === 'string') return urlPattern.replace('%s', ids);
   else ids = ids.slice();
 
-  var url = ids.length > 1 && config.comboPattern || config.urlPattern;
-  if (url) url = url.replace('%s', ids.join(';'));
-  return url;
+  urlPattern = config.comboPattern || urlPattern;
+  var MAX_URL_LENGTH = 2000;
+  var urls = [];
+  var url = ids.shift();
+  var l = urlPattern.length - 2 + url.length;
+
+  while (ids.length) {
+    var id = ids.shift();
+    if (l + id.length < MAX_URL_LENGTH) {
+      url += ';' + id;
+      l += 1 + id.length;
+    } else {
+      urls.push(url);
+      url = id;
+      l = urlPattern.length - 2 + url.length;
+    }
+  }
+  urls.push(url);
+
+  return urls.map(function (url) {
+    return urlPattern.replace('%s', url);
+  });
 }
 
 // from jqMobi

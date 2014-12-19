@@ -210,6 +210,6 @@ describe('lego.view', function () {
       urlPattern: '/%s',
       comboPattern: '/c/%s'
     });
-    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script>lego.defineCSS("u/u1/u11.css.js", "html { display: none; }");</script>\n  <script>lego.defineCSS("u/u1/u12.css.js", "html { display: block; }");</script>\n  <script>lego.define("u/u1/u11.js", "console.log("Hello");");</script>\n  <script>lego.defineCSS("u/u2/u21.css.js", "body { display: none; }");</script>\n</head>\n<body>\n');
+    v.should.have.property('pre', '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n  <script>lego.defineCSS("u/u1/u11.css.js", "html { display: none; }");</script>\n  <script>lego.defineCSS("u/u1/u12.css.js", "html { display: block; }");</script>\n  <script>lego.defineCSS("u/u2/u21.css.js", "body { display: none; }");</script>\n  <script>lego.define("u/u1/u11.js", "console.log("Hello");");</script>\n</head>\n<body>\n');
   });
 });
