@@ -1,6 +1,6 @@
 {
   "name": "lego-bigpipe",
-  "version": "0.2.0",
+  "version": "0.2.0-1",
   "description": "a bigpipe builder for scrat-lego",
   "license": "MIT",
   "main": ".",

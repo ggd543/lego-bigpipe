@@ -100,7 +100,7 @@ exports.view = function (data, config) {
         }
       }
       each(ids.js, function (id) {
-        pre += tpl.script({content: mods[id]});
+        if (mods[id]) pre += tpl.script({content: mods[id]});
       });
     }
 
