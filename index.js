@@ -22,7 +22,8 @@ exports.unit = function (data) {
   var pagelet = {};
   var bigpipe = '';
   var quickling = '';
-  pagelet.id = data.code;
+  pagelet.id = uuid();
+  pagelet.code = data.code;
 
   if (data.js) {
     pagelet.js = data.js;
@@ -56,7 +57,6 @@ exports.unit = function (data) {
 };
 
 exports.view = function (data, config) {
-  if (!data.code) data.code = uuid();
   config = config || {urlPattern: '%s'};
 
   var pre = '<!DOCTYPE html>\n<!--STATUS OK-->\n<html>\n<head>\n  <meta charset="utf-8">\n';
