@@ -40,6 +40,7 @@ exports.unit = function (data) {
   }
 
   if (pagelet.html) bigpipe = pagelet.html + bigpipe;
+  bigpipe = '<!-- lego-unit-' + pagelet.id + ' -->' + bigpipe;
 
   if (data.css) pagelet.css = data.css;
   if (pagelet.html || pagelet.js || pagelet.css) {
