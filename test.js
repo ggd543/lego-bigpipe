@@ -12,9 +12,10 @@ describe('lego.unit', function () {
       data: 'module.exports = { name: "unit" };'
     };
     var r = lego.unit(u);
+    r.should.have.property('id');
     r.should.have.property('code', u.code);
-    r.should.have.property('bigpipe', '<h1>unit</h1><script>lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});</script>\n');
-    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"],"html":"<h1>unit</h1>","css":["c/c1/c1","c/c2/c2"]});\n');
+    r.should.have.property('bigpipe', '<h1>unit</h1><script lego-id="' + r.id + '">lego.onPageletArrive({"id":"' + r.id + '","code":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});</script>\n');
+    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"' + r.id + '","code":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"],"html":"<h1>unit</h1>","css":["c/c1/c1","c/c2/c2"]});\n');
   });
 
   it('should build unit properly when unit only contain source', function () {
@@ -23,9 +24,10 @@ describe('lego.unit', function () {
       source: '<h1>Hello, world!</h1>'
     };
     var r = lego.unit(u);
+    r.should.have.property('id');
     r.should.have.property('code', u.code);
     r.should.have.property('bigpipe', u.source + '\n');
-    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"unit","html":"<h1>Hello, world!</h1>"});\n');
+    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"' + r.id + '","code":"unit","html":"<h1>Hello, world!</h1>"});\n');
   });
 
   it('should build unit properly when unit only contain js', function () {
@@ -34,9 +36,10 @@ describe('lego.unit', function () {
       js: ['c/c1/c1', 'c/c1/c11', 'c/c2/c2']
     };
     var r = lego.unit(u);
+    r.should.have.property('id');
     r.should.have.property('code', u.code);
-    r.should.have.property('bigpipe', '<script>lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});</script>\n');
-    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});\n');
+    r.should.have.property('bigpipe', '<script lego-id="' + r.id + '">lego.onPageletArrive({"id":"' + r.id + '","code":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});</script>\n');
+    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"' + r.id + '","code":"unit","js":["c/c1/c1","c/c1/c11","c/c2/c2"]});\n');
   });
 
   it('should build unit properly when unit only contain css', function () {
@@ -45,9 +48,10 @@ describe('lego.unit', function () {
       css: ['c/c1/c1', 'c/c2/c2']
     };
     var r = lego.unit(u);
+    r.should.have.property('id');
     r.should.have.property('code', u.code);
     r.should.have.property('bigpipe', '');
-    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"unit","css":["c/c1/c1","c/c2/c2"]});\n');
+    r.should.have.property('quickling', 'lego.onPageletArrive({"id":"' + r.id + '","code":"unit","css":["c/c1/c1","c/c2/c2"]});\n');
   });
 
   it('should build unit properly when unit contain nothing', function () {
@@ -55,6 +59,7 @@ describe('lego.unit', function () {
       code: 'unit'
     };
     var r = lego.unit(u);
+    r.should.have.property('id');
     r.should.have.property('code', u.code);
     r.should.have.property('bigpipe', '');
     r.should.have.property('quickling', '');

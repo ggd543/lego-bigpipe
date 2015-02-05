@@ -27,7 +27,7 @@ exports.unit = function (data) {
 
   if (data.js) {
     pagelet.js = data.js;
-    bigpipe = '<script>lego.onPageletArrive(' + JSON.stringify(pagelet) + ');</script>';
+    bigpipe = '<script lego-id="' + pagelet.id + '">lego.onPageletArrive(' + JSON.stringify(pagelet) + ');</script>';
   }
 
   if (data.source && data.data) {
@@ -40,7 +40,6 @@ exports.unit = function (data) {
   }
 
   if (pagelet.html) bigpipe = pagelet.html + bigpipe;
-  bigpipe = '<!-- lego-unit-' + pagelet.id + ' -->' + bigpipe;
 
   if (data.css) pagelet.css = data.css;
   if (pagelet.html || pagelet.js || pagelet.css) {
@@ -51,6 +50,7 @@ exports.unit = function (data) {
   if (quickling) quickling += '\n';
 
   return {
+    id: pagelet.id,
     code: data.code,
     bigpipe: bigpipe,
     quickling: quickling
@@ -177,6 +177,14 @@ function each(obj, iterator, context) {
   }
 }
 
+// from jqMobi
+function uuid() {
+  function s4() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
 function genUrl(ids, config) {
   config = config || {};
   var urlPattern = config.urlPattern || '%s';
@@ -205,12 +213,4 @@ function genUrl(ids, config) {
   return urls.map(function (url) {
     return urlPattern.replace('%s', url);
   });
-}
-
-// from jqMobi
-function uuid() {
-  function s4() {
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
