@@ -18,30 +18,45 @@ each(tpl, function (t, name) {
   });
 });
 
+/**
+ * @param {string} data.code - 单元 code
+ * @param {string[]} data.js - 单元 JS 依赖
+ * @param {string[]} data.css - 单元 CSS 依赖
+ * @param {string} data.source - 单元模板
+ * @param {Object} data.data - 单元数据，用于渲染模板，是遵循 CommonJS 模块化规范的 JS 代码
+ * @param {Object} data.config - 单元配置信息，例如统计信息等
+ *
+ * @returns {string} unit.id - uuid 单元构建标识
+ * @returns {string} unit.code - 单元 code
+ * @returns {string} unit.bigpipe - 单元 chunk 输出结果
+ * @returns {string} unit.quickling - 单元在被异步请求时输出结果
+ */
 exports.unit = function (data) {
   var pagelet = {};
+  var module = {};
   var bigpipe = '';
   var quickling = '';
   pagelet.id = uuid();
   pagelet.code = data.code;
+  pagelet.unit = module.unit = data.config || {};
+
+  if (data.data) {
+    /*jshint evil: true */
+    (new Function('module', 'var exports=module.exports={};' + data.data)).call(module, module);
+  }
 
   if (data.js) {
     pagelet.js = data.js;
     bigpipe = '<script lego-id="' + pagelet.id + '">lego.onPageletArrive(' + JSON.stringify(pagelet) + ');</script>';
   }
 
-  if (data.source && data.data) {
-    var module = {exports: {}};
-    /*jshint evil: true */
-    (new Function('module', 'var exports=module.exports;' + data.data)).call(module, module);
-    pagelet.html = ejs.render(data.source, {locals: module.exports});
-  } else if (data.source) {
-    pagelet.html = data.source;
+  if (data.source) {
+    pagelet.html = ejs.render(data.source, {locals: module.exports || {}});
+    bigpipe = pagelet.html + bigpipe;
   }
 
-  if (pagelet.html) bigpipe = pagelet.html + bigpipe;
-
   if (data.css) pagelet.css = data.css;
+
   if (pagelet.html || pagelet.js || pagelet.css) {
     quickling = 'lego.onPageletArrive(' + JSON.stringify(pagelet) + ');';
   }
@@ -57,6 +72,24 @@ exports.unit = function (data) {
   };
 };
 
+/**
+ * @param {string} data.code
+ * @param {string} data.head.title
+ * @param {string[]} data.head.styles
+ * @param {string[]} data.head.scripts
+ * @param {string[]} data.body.styles
+ * @param {string[]} data.body.scripts
+ * @param {Object[]} data.body.units
+ *
+ * @param {string} data.*.styles[].url
+ * @param {string} data.*.styles[].content - view 中通过 <style> 内联的样式
+ * @param {string} data.*.scripts[].url
+ * @param {string} data.*.scripts[].content - view 中通过 <script> 内联的脚本
+ *
+ * @returns {string} view.code
+ * @returns {string} view.pre - view chunk 输出单元前的部分
+ * @returns {string} view.post - view chunk 输出单元后的部分
+ */
 exports.view = function (data, config) {
   config = config || {urlPattern: '%s'};
 
@@ -185,6 +218,12 @@ function uuid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
+/**
+ * @param {string[]} ids - 要生成 url 的文件列表
+ * @param {string} config.urlPattern - url 模式，使用 %s 占位符表示 id
+ * @param {string} config.comboPattern - combo url 模式，使用 %s 占位符表示分号分割的多个 id
+ * @returns {string[]} urls - 生成的 url/combo url 列表
+ */
 function genUrl(ids, config) {
   config = config || {};
   var urlPattern = config.urlPattern || '%s';
